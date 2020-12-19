@@ -195,6 +195,10 @@ openssl x509 -req -in dashboard.csr -CA ca.crt -CAkey ca.key -CAcreateserial -ou
 #查看自创证书
 openssl x509 -in dashboard.crt -noout -text
 
+```
+
+安装dashboard 并生成token
+``` bash
 kubectl apply -f kubernetes-dashboard.yaml 
 kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.crt=/etc/kubernetes/pki/dashboard.crt --from-file=dashboard.key=/etc/kubernetes/pki/dashboard.key  -n kubernetes-dashboard
 
