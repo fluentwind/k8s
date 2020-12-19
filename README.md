@@ -16,7 +16,7 @@ vi ifcfg-eth0
 hostnamectl set-hostname kmaster
 ```
     
-#### 安装ansible
+### 安装ansible
 
 ``` bash
 yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -42,7 +42,7 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.40.201
 ansible k8s-all -m ping #ok了就行
 ```
 
-#### 所有节点安装docker
+### 所有节点安装docker
 ``` yml
 vim install_docker_playbook.yml
 - hosts: k8s-all
@@ -73,7 +73,7 @@ vim install_docker_playbook.yml
 ansible-playbook install_docker_playbook.yml
 ```
 
-#### 安装master 记得修改master ip
+### 安装master 记得修改master ip
 ``` yml
 vim deploy_master_playbook.yml
 - hosts: k8s-master
@@ -124,7 +124,7 @@ kubeadm join 192.168.58.220:6443 --token zgx3ov.zlq3jh12atw1zh8r .....
 ```
 
 
-#### 安装node 记得修改master ip
+### 安装node 记得修改master ip
 ``` yml
 vim deploy_nodes_playbook.yml
 - hosts: k8s-nodes
@@ -157,7 +157,7 @@ ansible-playbook deploy_nodes_playbook.yml
 
 都ready了往下走，如果起不来一般是flannel镜像被墙了，可以手动下载并tag到每个节点
 
-#### 安装ingress
+### 安装ingress
 ``` yml
 vim nginx-ingress.yaml
 :s/quay.io/quay-mirror.qiniu.com/g
@@ -181,7 +181,7 @@ kubectl apply -f nginx-ingress.yaml
 kubectl get pods -n ingress-nginx -o wide
 ```
 
-#### 安装dashboard
+### 安装dashboard
 
 创建自定义证书
 ``` bash
