@@ -155,7 +155,51 @@ ansible-playbook deploy_nodes_playbook.yml
 
 #### kubectl get nodes 查看集群状态
 
-如果起不来一般是flannel镜像被墙了，可以手动下载并tag到每个节点
+都ready了往下走，如果起不来一般是flannel镜像被墙了，可以手动下载并tag到每个节点
+
+#### 安装ingress
+``` yml
+vim nginx-ingress.yaml
+:s/quay.io/quay-mirror.qiniu.com/g
+
+
+vim nginx-ingress.yaml
+
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        nginx-ingress: "true"
+```
+首先在knode1节点上打标签nginx-ingress=true，控制Ingress部署到knode1上，保持IP固定。
+
 ``` bash
-ansible 
+kubectl label node knode1 nginx-ingress=true
+node/knode1 labeled
+kubectl apply -f nginx-ingress.yaml
+
+#查看状态
+kubectl get pods -n ingress-nginx -o wide
+```
+
+#### 安装dashboard
+
+创建自定义证书
+``` bash
+cd /etc/kubernetes/pki/
+#生成私钥
+openssl genrsa -out dashboard.key 2048
+#生成证书
+openssl req -new -key dashboard.key -out dashboard.csr -subj "/O=JBST/CN=kubernetes-dashboard"
+#使用集群的CA来签署证书
+openssl x509 -req -in dashboard.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out dashboard.crt -days 3650
+#查看自创证书
+openssl x509 -in dashboard.crt -noout -text
+
+kubectl apply -f kubernetes-dashboard.yaml 
+kubectl create secret generic kubernetes-dashboard-certs --from-file=dashboard.crt=/etc/kubernetes/pki/dashboard.crt --from-file=dashboard.key=/etc/kubernetes/pki/dashboard.key  -n kubernetes-dashboard
+
+#创建cluster-admin
+kubectl apply -f kubernetes-dashboard-auth.yaml
+#获取token
+kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 ```
